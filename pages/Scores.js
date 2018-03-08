@@ -10,6 +10,11 @@ export default class Scores extends React.Component {
     }
 
     render(){
+        const listData = [
+            {key: '1. element'},
+            {key: '2. element'},
+            {key: '3. element'},
+        ];
         return(
             <View>
                 <Text style={styles.header}>Scores</Text>

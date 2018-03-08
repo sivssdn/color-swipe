@@ -1,27 +1,114 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {FlatList, StyleSheet, Text, View, TouchableHighlight} from 'react-native';
+import {LinearGradient} from 'expo';
+import {SwipeableFlatList} from 'react-native-swipeable-flat-list';
 
 export default class ColorSwipe extends React.Component {
     constructor(props) {
         super(props);
-        this.state={
+        this.state = {}
+    }
 
-        }
+    FlatListItemSeparator = () => {
+        return (
+            //creating horizontal line as a separator
+            <View
+                style={{
+                    height: 1,
+                    width: "100%",
+                    backgroundColor: "#050505",
+                }}
+            />
+        );
+    };
+
+     MyListItem() {
+        return (
+            <View>
+                <Text>My swipeable content</Text>
+            </View>
+        );
     }
 
     render() {
+        const data = [
+            { key: 1, label: '#59323c', leftLabel: 'Left 1', rightLabel: 'Right 1' },
+            { key: 2, label: '#260126', leftLabel: 'Left 2', rightLabel: 'Right 2' },
+            { key: 3, label: '#F2EEB3', leftLabel: 'Left 3', rightLabel: 'Right 3' },
+            { key: 4, label: '#BFAF80', leftLabel: 'Left 4', rightLabel: 'Right 4' },
+            { key: 5, label: '#8C6954', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 6, label: '#380303', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 7, label: '#030537', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 8, label: '#1B2343', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 9, label: '#54709E', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 10, label: '#00404A', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 11, label: '#3E2F94', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 12, label: '#636ABD', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 13, label: '#FFDDA9', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 14, label: '#BF5B19', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 15, label: '#00657F', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 16, label: '#4F280C', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 17, label: '#010945', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 18, label: '#D78D1E', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 19, label: '#BF2E21', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 20, label: '#1E2A38', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 21, label: '#CC0005', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 22, label: '#7F0003', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 23, label: '#FF4C50', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 24, label: '#FF0006', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+            { key: 25, label: '#8C1B85', leftLabel: 'Left 5', rightLabel: 'Right 5' },
+        ];
+
         return (
-            <View>
-                <Text style={styles.header}>Color Swipe</Text>
+            <View style={{flex: 1}}>
+                <View style={{backgroundColor: 'white', flex: 1}}/>
+                <LinearGradient
+                    /*colors={['#ffe259', '#ffa751']}*/
+                    colors={['#1488cc', '#2b32b2']}
+                    style={styles.gradient}>
+                    <Text style={styles.headerTextLeft}>
+                        SWIPES LEFT
+                    </Text>
+                </LinearGradient>
+
+                {/*Color list part*/}
+                <SwipeableFlatList
+                    style={{flex:1, position:'absolute',top: 121, bottom: 0, left: 0, right: 0}}
+                    data={data}
+                    renderItem={({ item }) => (
+                        <View style={{height: 100, backgroundColor:String(item.label) }}>
+                            <Text style={{ height: 48 }}>{item.label}</Text>
+                        </View>
+                    )}
+                    renderLeft={({ item }) => (
+                        <View style={{height: 100,width:200, backgroundColor:'#30383B' }}>
+                            <Text style={{ width: 40 }}>{item.leftLabel}</Text>
+                        </View>
+                    )}
+                    renderRight={({ item }) => (
+                        <View style={{height: 100,width:200, backgroundColor:'green' }}>
+                            <Text style={{ width: 100 }}>{item.rightLabel}</Text>
+                        </View>
+                    )}
+                    backgroundColor={'white'}
+                />
+
             </View>
         );
     }
 }
 const styles = StyleSheet.create({
-    header: {
-        fontSize: 24,
-        marginBottom: 60,
+    gradient: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        height: 121,
+    },
+    headerTextLeft: {
+        backgroundColor: 'transparent',
+        fontSize: 15,
         color: '#fff',
-        fontWeight: 'bold',
+        paddingTop: 20,
     }
 });
