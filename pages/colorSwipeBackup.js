@@ -1,13 +1,24 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {LinearGradient} from 'expo';
+import {SwipeableFlatList, SwipeableListItem} from 'react-native-swipeable-flat-list';
 
 export default class ColorSwipe extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            fakeVariable:true
+        };
     }
 
+    alertItemName = (item) => {
+        console.log("\n--------------\n"+item);
+        this.setState({
+            fakeVariable: !this.state.fakeVariable,
+        });
+
+        console.log(this.state.fakeVariable);
+    };
 
     render() {
         const data = [
@@ -39,7 +50,7 @@ export default class ColorSwipe extends React.Component {
         ];
 
         return (
-            <View style={{flex: 1, position:'absolute'}}>
+            <View style={{flex: 1, flexDirection: 'column', top: 0, left: 0}}>
 
                 <LinearGradient
                     /*colors={['#ffe259', '#ffa751']}*/
@@ -61,6 +72,7 @@ export default class ColorSwipe extends React.Component {
                         </Text>
 
                     </View>
+
                     <View style={{
                         flex: 1,
                         flexDirection: 'column',
@@ -79,66 +91,46 @@ export default class ColorSwipe extends React.Component {
                     </View>
                 </LinearGradient>
 
-                <View style={{
-                    position:'absolute',
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    flex: 1,
-                    height: 30,
-                    backgroundColor: '#ffffff',
-                }}><Text
-                    style={{
-                        top: -50,
-                        fontSize: 20,
-                        backgroundColor: 'transparent',
-                        color: '#000000',
-                        fontWeight: 'bold',
-                        position: 'absolute',
-
-                    }}>LEARNING</Text>
+                <View style={{width: '100%', flex: 1, top: 121, alignContent: 'center',}}>
+                    <Text style={{color: '#000', fontSize: 20, textAlign: 'center'}}>LEARNING PHASE</Text>
                 </View>
 
-                {/*Color list part*/}
-
-
+                {/*coloured list page*/}
                 <SwipeableFlatList
                     style={{flex: 1, position: 'absolute', top: 181, bottom: 0, left: 0, right: 0}}
                     data={data}
+                    onOpen={this.alertItemName.bind(this,'open')}
+                    onClose={() => this.alertItemName('close')}
                     renderItem={({item}) => (
-                        <View style={{height: 100, backgroundColor: String(item.label)}}>
+                        <SwipeableListItem item={<View style={{height: 100, backgroundColor: String(item.label)}}>
                             <Text style={{height: 48}}>{item.label}</Text>
-                        </View>
+                        </View>}
+                                           style={{height: 100, width:'100%'}}
+                                           onOpen={this.alertItemName.bind(this,item.key)}
+                                           onClose={() => this.alertItemName(item.key)}
+                        />
                     )}
                     renderLeft={({item}) => (
                         <View style={{height: 100, width: 200, backgroundColor: '#30383B'}}>
                             <Text style={{width: 40}}>{item.leftLabel}</Text>
                         </View>
                     )}
-                    renderRight={({item}) => (
-                        <View style={{height: 100, width: 200, backgroundColor: 'green'}}>
-                            <Text style={{width: 100}}>{item.rightLabel}</Text>
-                        </View>
-                    )}
-                    backgroundColor={'#30383B'}
+                    keyExtractor={item => item.key}
                 />
-
-
-
             </View>
         );
     }
 }
 const styles = StyleSheet.create({
     gradient: {
-        flex:1,
+        flex: 1,
         flexDirection: 'row',
         position: 'absolute',
         left: 0,
         right: 0,
         top: 0,
         height: 121,
-        width:'100%'
+        width: '100%'
     },
     headerText: {
         backgroundColor: 'transparent',
