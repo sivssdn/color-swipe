@@ -1,7 +1,6 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {LinearGradient} from 'expo';
-import {SwipeableFlatList} from 'react-native-swipeable-flat-list';
 
 export default class ColorSwipe extends React.Component {
     constructor(props) {
@@ -40,7 +39,7 @@ export default class ColorSwipe extends React.Component {
         ];
 
         return (
-            <View style={{flex: 1, flexDirection:'column', top: 0, left: 0}}>
+            <View style={{flex: 1, position:'absolute'}}>
 
                 <LinearGradient
                     /*colors={['#ffe259', '#ffa751']}*/
@@ -62,7 +61,6 @@ export default class ColorSwipe extends React.Component {
                         </Text>
 
                     </View>
-
                     <View style={{
                         flex: 1,
                         flexDirection: 'column',
@@ -81,11 +79,29 @@ export default class ColorSwipe extends React.Component {
                     </View>
                 </LinearGradient>
 
-                <View style={{ width:'100%',flex: 1, top: 121, alignContent:'center', }}>
-                    <Text style={{color: '#000', fontSize: 20, textAlign:'center'}}>LEARNING PHASE</Text>
+                <View style={{
+                    position:'absolute',
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    flex: 1,
+                    height: 30,
+                    backgroundColor: '#ffffff',
+                }}><Text
+                    style={{
+                        top: -50,
+                        fontSize: 20,
+                        backgroundColor: 'transparent',
+                        color: '#000000',
+                        fontWeight: 'bold',
+                        position: 'absolute',
+
+                    }}>LEARNING</Text>
                 </View>
 
-                {/*coloured list page*/}
+                {/*Color list part*/}
+
+
                 <SwipeableFlatList
                     style={{flex: 1, position: 'absolute', top: 181, bottom: 0, left: 0, right: 0}}
                     data={data}
@@ -106,20 +122,23 @@ export default class ColorSwipe extends React.Component {
                     )}
                     backgroundColor={'#30383B'}
                 />
+
+
+
             </View>
         );
     }
 }
 const styles = StyleSheet.create({
     gradient: {
-        flex: 1,
+        flex:1,
         flexDirection: 'row',
         position: 'absolute',
         left: 0,
         right: 0,
         top: 0,
         height: 121,
-        width: '100%'
+        width:'100%'
     },
     headerText: {
         backgroundColor: 'transparent',
