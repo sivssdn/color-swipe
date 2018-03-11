@@ -5,44 +5,67 @@ import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view'; // 0.4.6
 //import 'prop-types'; // 15.6.0
 
 const color_data = [
-    {key: 1, label: '#59323c', leftLabel: 'Left 1', rightLabel: 'Right 1'},
-    {key: 2, label: '#260126', leftLabel: 'Left 2', rightLabel: 'Right 2'},
-    {key: 3, label: '#F2EEB3', leftLabel: 'Left 3', rightLabel: 'Right 3'},
-    {key: 4, label: '#BFAF80', leftLabel: 'Left 4', rightLabel: 'Right 4'},
-    {key: 5, label: '#8C6954', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 6, label: '#380303', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 7, label: '#030537', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 8, label: '#1B2343', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 9, label: '#54709E', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 10, label: '#00404A', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 11, label: '#3E2F94', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 12, label: '#636ABD', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 13, label: '#FFDDA9', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 14, label: '#BF5B19', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 15, label: '#00657F', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 16, label: '#4F280C', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 17, label: '#010945', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 18, label: '#D78D1E', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 19, label: '#BF2E21', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 20, label: '#1E2A38', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 21, label: '#CC0005', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 22, label: '#7F0003', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 23, label: '#FF4C50', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 24, label: '#FF0006', leftLabel: 'Left 5', rightLabel: 'Right 5'},
-    {key: 25, label: '#8C1B85', leftLabel: 'Left 5', rightLabel: 'Right 5'},
+    {key: 1, label: '#59323c'},
+    {key: 2, label: '#260126'},
+    {key: 3, label: '#F2EEB3'},
+    {key: 4, label: '#BFAF80'},
+    {key: 5, label: '#8C6954'},
+    {key: 6, label: '#380303'},
+    {key: 7, label: '#030537'},
+    {key: 8, label: '#1B2343'},
+    {key: 9, label: '#54709E'},
+    {key: 10, label: '#00404A'},
+    {key: 11, label: '#3E2F94'},
+    {key: 12, label: '#636ABD'},
+    {key: 13, label: '#FFDDA9'},
+    {key: 14, label: '#BF5B19'},
+    {key: 15, label: '#00657F'},
+    {key: 16, label: '#4F280C'},
+    {key: 17, label: '#010945'},
+    {key: 18, label: '#D78D1E'},
+    {key: 19, label: '#BF2E21'},
+    {key: 20, label: '#1E2A38'},
+    {key: 21, label: '#CC0005'},
+    {key: 22, label: '#7F0003'},
+    {key: 23, label: '#FF4C50'},
+    {key: 24, label: '#FF0006'},
+    {key: 25, label: '#8C1B85'},
 ];
-
+var visibleColorList = [];
 
 export default class ColorSwipe extends Component {
+
+
     constructor(props) {
         super(props);
         this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        let validColors = this.createColorList();
         this.state = {
-            basic: true,
-            listViewData: color_data.map((row) => <Text>{row.label}</Text>),
+            swipesLeft:3,
+            phase:'learning',
+            validColorsList:validColors,
+            listViewData: validColors.map((row) => <View style={[styles.rowFront,{backgroundColor: row}]}></View>),
         };
+
     }
 
+
+    createColorList(){
+        visibleColorList = [];
+        let loop1 = 10;
+        while(loop1 !== 0){
+            let randomNumber = Math.floor(Math.random()*24)+0; //24 is ending value, 0 is starting
+            if(visibleColorList.indexOf(color_data[randomNumber].label) === -1) {
+                //color not found
+                visibleColorList.push(color_data[randomNumber].label);
+                loop1--;
+            }
+        }
+        return visibleColorList;
+    }
+
+
+    //function for deleting a row from Swipeable List
     deleteRow(secId, rowId, rowMap) {
         rowMap[`${secId}${rowId}`].closeRow();
         const newData = [...this.state.listViewData];
@@ -59,16 +82,10 @@ export default class ColorSwipe extends Component {
                     /*colors={['#ffe259', '#ffa751']}*/
                     colors={['#1488cc', '#2b32b2']}
                     style={styles.gradient}>
-                    <View style={{
-                        flex: 1,
-                        flexDirection: 'column',
-                        width: 200,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}>
+                    <View style={styles.swipeLeftHeaderContainer}>
 
                         <Text style={styles.headerCounter}>
-                            3
+                            {this.state.swipesLeft}
                         </Text>
                         <Text style={styles.headerText}>
                             SWIPES LEFT
@@ -76,13 +93,7 @@ export default class ColorSwipe extends Component {
 
                     </View>
 
-                    <View style={{
-                        flex: 1,
-                        flexDirection: 'column',
-                        width: 200,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}>
+                    <View style={styles.levelHeaderContainer}>
 
                         <Text style={styles.headerCounter}>
                             3
@@ -100,42 +111,45 @@ export default class ColorSwipe extends Component {
                 </View>
 
 
-
                 <View style={styles.list_container}>
 
                     <SwipeListView
 
                         dataSource={this.ds.cloneWithRows(this.state.listViewData)}
-                        onRowClose={(data, rowKey, rowMap) => {
+                        /*onRowClose={(data, rowKey, rowMap) => {
                             console.log('close' + data)
                         }}
                         onRowOpen={(rowKey, rowMap) => {
                             console.log('open' + rowMap[rowKey])
+                        }}*/
+                        onRowDidOpen={(rowKey, rowMap) => {
+                            console.log('open' + rowMap[rowKey])
                         }}
                         renderRow={(data, secId, rowId, rowMap) => (
                             <SwipeRow
-                                disableLeftSwipe={false}
-                                leftOpenValue={100}
+                                disableLeftSwipe={true}
+                                leftOpenValue={200}
                                 rightOpenValue={-150}>
                                 <View style={styles.rowBack}>
-                                    <Text>Left</Text>
-                                    <View style={[styles.backRightBtn, styles.backRightBtnLeft]}>
+                                    <Text>Saving</Text>
+                                    {/*<View style={[styles.backRightBtn, styles.backRightBtnLeft]}>
                                         <Text style={styles.backTextWhite}>Right</Text>
                                     </View>
                                     <TouchableOpacity
                                         style={[styles.backRightBtn, styles.backRightBtnRight]}
                                         onPress={_ => this.deleteRow(secId, rowId, rowMap)}>
                                         <Text style={styles.backTextWhite}>Delete</Text>
-                                    </TouchableOpacity>
+                                    </TouchableOpacity>*/}
                                 </View>
-                                <TouchableHighlight
+                                {/*Front row*/}
+                                {data}
+
+                                {/*<TouchableHighlight
                                     onPress={_ => console.log('You touched me')}
                                     style={styles.rowFront}
                                     underlayColor={'#AAA'}>
-                                    <View>
-                                        {data}
-                                    </View>
-                                </TouchableHighlight>
+
+                                </TouchableHighlight>*/}
                             </SwipeRow>
                         )}
                     />
@@ -164,6 +178,20 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0
     },
+    swipeLeftHeaderContainer:{
+        flex: 1,
+        flexDirection: 'column',
+        width: 200,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    levelHeaderContainer:{
+        flex: 1,
+        flexDirection: 'column',
+        width: 200,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     backTextWhite: {
         color: '#FFF',
     },
@@ -173,11 +201,11 @@ const styles = StyleSheet.create({
         borderBottomColor: 'black',
         borderBottomWidth: 1,
         justifyContent: 'center',
-        height: 50,
+        height: 70,
     },
     rowBack: {
         alignItems: 'center',
-        backgroundColor: '#DDD',
+        backgroundColor: '#01B20E',
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',

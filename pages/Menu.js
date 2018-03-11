@@ -12,7 +12,7 @@ export default class Menu extends React.Component {
         return (
 
             <View style={styles.container}>
-                <Image source={require('../bg_ashoka.jpg')}
+                <Image source={require('../background-1853244_1280.jpg')}
                        style={styles.ImageBackground}/>
 
 
