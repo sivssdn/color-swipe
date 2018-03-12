@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ListView, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View,} from 'react-native';
+import {ListView, StyleSheet, Text, View,} from 'react-native';
 import {LinearGradient} from 'expo';
 import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view'; // 0.4.6
 //import 'prop-types'; // 15.6.0
@@ -41,21 +41,22 @@ export default class ColorSwipe extends Component {
         this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         let validColors = this.createColorList();
         this.state = {
-            swipesLeft:3,
-            phase:'learning',
-            validColorsList:validColors,
-            listViewData: validColors.map((row) => <View style={[styles.rowFront,{backgroundColor: row}]}></View>),
+            swipesLeft: 3,
+            phase: 'learning',
+            phaseMessage: 'Swipe right to select',
+            validColorsList: validColors,
+            listViewData: validColors.map((row) => <View style={[styles.rowFront, {backgroundColor: row}]}></View>),
         };
 
     }
 
 
-    createColorList(){
+    createColorList() {
         visibleColorList = [];
         let loop1 = 10;
-        while(loop1 !== 0){
-            let randomNumber = Math.floor(Math.random()*24)+0; //24 is ending value, 0 is starting
-            if(visibleColorList.indexOf(color_data[randomNumber].label) === -1) {
+        while (loop1 !== 0) {
+            let randomNumber = Math.floor(Math.random() * 24) + 0; //24 is ending value, 0 is starting
+            if (visibleColorList.indexOf(color_data[randomNumber].label) === -1) {
                 //color not found
                 visibleColorList.push(color_data[randomNumber].label);
                 loop1--;
@@ -64,6 +65,25 @@ export default class ColorSwipe extends Component {
         return visibleColorList;
     }
 
+    shuffleVisibleColors(array) {
+        //Fisher-Yates (aka Knuth) Shuffle
+        var copy = [], n = array.length, i;
+
+        // While there remain elements to shuffle…
+        while (n) {
+
+            // Pick a remaining element…
+            i = Math.floor(Math.random() * array.length);
+
+            // If not already shuffled, move it to the new array.
+            if (i in array) {
+                copy.push(array[i]);
+                delete array[i];
+                n--;
+            }
+        }
+        return copy;
+    }
 
     //function for deleting a row from Swipeable List
     deleteRow(secId, rowId, rowMap) {
@@ -73,6 +93,42 @@ export default class ColorSwipe extends Component {
         this.setState({listViewData: newData});
     }
 
+    countSwipes() {
+        let swipesLeft = this.state.swipesLeft - 1;
+        if (swipesLeft > 0) {
+
+            this.setState({swipesLeft: swipesLeft});
+        } else if (swipesLeft === 0 && this.state.phase === 'learning') {
+            this.setState({swipesLeft: 0}); //display no swipes left and after a while, chane state
+
+            setTimeout(() => {
+                visibleColorList = this.shuffleVisibleColors(this.state.validColorsList);
+                this.setState({
+                    swipesLeft: 3,
+                    phase: 'recall',
+                    phaseMessage: 'RECALLING PHASE',
+                    listViewData: visibleColorList.map((row) => <View style={[styles.rowFront, {backgroundColor: row}]}></View>)
+                });
+
+            }, 200);
+
+
+        } else if (swipesLeft === 0 && this.state.phase === 'recall') {
+            this.setState({
+                swipesLeft: 0,
+                phase: 'over'
+            });
+
+            setTimeout(() => {alert('Over Bro')}, 200);
+
+        }
+    }
+
+    componentDidMount() {
+        setTimeout(() => {
+            this.setState({phaseMessage: 'LEARNING PHASE'})
+        }, 3000);
+    }
 
     render() {
 
@@ -107,7 +163,9 @@ export default class ColorSwipe extends Component {
 
 
                 <View style={{width: '100%', height: '10%', flex: 1, top: 121, alignContent: 'center'}}>
-                    <Text style={{color: '#000', fontSize: 20, textAlign: 'center'}}>LEARNING PHASE</Text>
+                    <Text style={{color: '#000', fontSize: 20, textAlign: 'center'}}>
+                        {this.state.phaseMessage}
+                    </Text>
                 </View>
 
 
@@ -122,8 +180,8 @@ export default class ColorSwipe extends Component {
                         onRowOpen={(rowKey, rowMap) => {
                             console.log('open' + rowMap[rowKey])
                         }}*/
-                        onRowDidOpen={(rowKey, rowMap) => {
-                            console.log('open' + rowMap[rowKey])
+                        onRowDidOpen={() => {
+                            this.countSwipes();
                         }}
                         renderRow={(data, secId, rowId, rowMap) => (
                             <SwipeRow
@@ -178,14 +236,14 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0
     },
-    swipeLeftHeaderContainer:{
+    swipeLeftHeaderContainer: {
         flex: 1,
         flexDirection: 'column',
         width: 200,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    levelHeaderContainer:{
+    levelHeaderContainer: {
         flex: 1,
         flexDirection: 'column',
         width: 200,
