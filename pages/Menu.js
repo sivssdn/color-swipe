@@ -1,11 +1,11 @@
 import React from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Image, StyleSheet, Text, TouchableOpacity, View, AsyncStorage} from 'react-native';
 
 export default class Menu extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {}
     }
+
 
     render() {
 
@@ -28,7 +28,7 @@ export default class Menu extends React.Component {
                     <TouchableOpacity style={styles.button} onPress={() => {
                         this.props.navigation.navigate('Scores')
                     }}>
-                        <Text>Scores</Text>
+                        <Text>High Scores</Text>
                     </TouchableOpacity>
 
                 </View>

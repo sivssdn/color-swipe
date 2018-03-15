@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ListView, StyleSheet, Text, View,} from 'react-native';
+import {AsyncStorage, Image, ListView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {LinearGradient} from 'expo';
 import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view'; // 0.4.6
 //import 'prop-types'; // 15.6.0
@@ -31,10 +31,9 @@ const color_data = [
     {key: 24, label: '#FF0006'},
     {key: 25, label: '#8C1B85'},
 ];
-var visibleColorList = [];
 
+var learningPhaseTimer, recallPhaseTimer;
 export default class ColorSwipe extends Component {
-
 
     constructor(props) {
         super(props);
@@ -42,13 +41,14 @@ export default class ColorSwipe extends Component {
         let validColors = this.createColorList();
         this.state = {
             swipesLeft: 3,
+            gameLevel: 0,
             phase: 'learning',
             phaseMessage: 'Swipe right to select',
             learningPhaseTimeSpent: -1,
             recallPhaseTimeSpent: -1,
             validColorsList: validColors,
-            colorsLearned:[],
-            colorsRecalled:[],
+            colorsLearned: [],
+            colorsRecalled: [],
             listViewData: validColors.map((row) => <View style={[styles.rowFront, {backgroundColor: row}]}></View>),
         };
 
@@ -56,7 +56,7 @@ export default class ColorSwipe extends Component {
 
 
     createColorList() {
-        visibleColorList = [];
+        let visibleColorList = [];
         let loop1 = 10;
         while (loop1 !== 0) {
             let randomNumber = Math.floor(Math.random() * 24) + 0; //24 is ending value, 0 is starting
@@ -99,156 +99,246 @@ export default class ColorSwipe extends Component {
 
     /*function counts swipes and changes the state depending upon the swipes left*/
     rightSwipe(colorIndex) {
-        let colorSwiped = this.state.validColorsList[colorIndex-10];
-        console.log(colorSwiped);
-    //to access the correct color, we are getting the index of the color swiped,
-        // which can be mapped to the visibleColorList
+        try {
 
-        let swipesLeft = this.state.swipesLeft - 1;
-        if (swipesLeft > 0) {
+            let colorSwiped = this.state.validColorsList[colorIndex - 10];
+            //console.log(colorSwiped);
+            //to access the correct color, we are getting the index of the color swiped,
+            // which can be mapped to the visibleColorList
 
-            this.setState({swipesLeft: swipesLeft});
-            if(this.state.phase === 'learning'){
-                let colorsLearnedList = this.state.colorsLearned;
-                colorsLearnedList.push(colorSwiped);
-                this.setState({colorsLearned: colorsLearnedList});
-            }else if(this.state.phase === 'recall'){
-                let colorsRecalledList =  this.state.colorsRecalled;
-                colorsRecalledList.push(colorSwiped);
-                this.setState({colorsRecalled: colorsRecalledList});
-            }
-        } else if (swipesLeft === 0 && this.state.phase === 'learning') {
-            let colorsLearnedList = this.state.colorsLearned;
-            colorsLearnedList.push(colorSwiped);
-            this.setState({swipesLeft: 0,colorsLearned: colorsLearnedList}); //display no swipes left and after a while, chane state
+            let swipesLeft = this.state.swipesLeft - 1;
+            if (swipesLeft > 0) {
+                //removing swiped list from the user's view
+                const colorsList = this.state.validColorsList;
+                colorsList.splice(colorIndex - 10, 1);
+                //colorsList[colorIndex-10]='#01B20E';
 
-            setTimeout(() => {
-                visibleColorList = this.shuffleVisibleColors(this.state.validColorsList);
                 this.setState({
-                    swipesLeft: 3,
-                    phase: 'recall',
-                    phaseMessage: 'RECALLING PHASE',
-                    validColorsList:visibleColorList,
-                    listViewData: visibleColorList.map((row) => <View style={[styles.rowFront, {backgroundColor: row}]}></View>)
+                    swipesLeft: swipesLeft,
+                    listViewData: colorsList.map((row) => <View
+                        style={[styles.rowFront, {backgroundColor: row}]}></View>)
                 });
 
-            }, 200);
+                if (this.state.phase === 'learning') {
+                    let colorsLearnedList = this.state.colorsLearned;
+                    colorsLearnedList.push(colorSwiped);
+                    this.setState({colorsLearned: colorsLearnedList});
+                } else if (this.state.phase === 'recall') {
+                    let colorsRecalledList = this.state.colorsRecalled;
+                    colorsRecalledList.push(colorSwiped);
+                    this.setState({colorsRecalled: colorsRecalledList});
+                }
+            } else if (swipesLeft === 0 && this.state.phase === 'learning') {
+                clearTimeout(learningPhaseTimer); //stopping learning phase time timer
 
+                //recording swiped color
+                let colorsLearnedList = this.state.colorsLearned;
+                colorsLearnedList.push(colorSwiped);
+                this.setState({swipesLeft: 0, colorsLearned: colorsLearnedList}); //display no swipes left and after a while, chane state
 
-        } else if (swipesLeft === 0 && this.state.phase === 'recall') {
-            let colorsRecalledList =  this.state.colorsRecalled;
-            colorsRecalledList.push(colorSwiped);
+                //setting states to apt places
+                setTimeout(() => {
+                    //... spread operator with Set is used to keep the values in array unique
+                    let visibleColorList = this.shuffleVisibleColors([...new Set(this.state.validColorsList.concat(this.state.colorsLearned))]);
+                    this.setState({
+                        swipesLeft: 3,
+                        phase: 'recall',
+                        phaseMessage: 'RECALLING PHASE',
+                        validColorsList: visibleColorList,
+                        listViewData: visibleColorList.map((row) => <View
+                            style={[styles.rowFront, {backgroundColor: row}]}></View>)
+                    });
 
-            this.setState({
-                swipesLeft: 0,
-                phase: 'over',
-                colorsRecalled: colorsRecalledList
-            });
+                }, 200);
 
-            setTimeout(() => {
-                alert('Over Bro');
-                console.log(this.state.colorsLearned);
-                console.log(this.state.colorsRecalled);
-            }, 200);
+                //starting recall phase timer
+                recallPhaseTimer = setInterval(() => {
+                    this.setState({recallPhaseTimeSpent: ++this.state.recallPhaseTimeSpent});
+                }, 1000);
 
+            } else if (swipesLeft === 0 && this.state.phase === 'recall') {
+                clearTimeout(recallPhaseTimer);
+
+                let colorsRecalledList = this.state.colorsRecalled;
+                colorsRecalledList.push(colorSwiped);
+
+                this.setState({
+                    swipesLeft: 0,
+                    phase: 'over',
+                    colorsRecalled: colorsRecalledList
+                });
+
+                setTimeout(() => {
+                    //alert('Game Over');
+                    this.checkResults();
+                    /*console.log(this.state.colorsLearned);
+                    console.log(this.state.colorsRecalled);
+                    console.log(this.state.learningPhaseTimeSpent);
+                    console.log(this.state.recallPhaseTimeSpent);*/
+                }, 200);
+            }
+
+        } catch (error) {
+            console.log(error);
         }
     }
+
+    //function is called after both learning and recall is over to check if the user won or lost
+    checkResults() {
+        let errors = 0;
+        let learnedColors = this.state.colorsLearned, recalledColors = this.state.colorsRecalled;
+        for (let loop = 0; loop < learnedColors.length; loop++) {
+            if (recalledColors.indexOf(learnedColors[loop]) === -1) {
+                errors++;
+            }
+        }
+
+        if (errors > 0) {
+            //user lost
+            this.setState({phase: "Lost", phaseMessage: errors});
+        } else {
+            //user won, increase level
+            this.setState({phase: "Won", phaseMessage: errors});
+            let gameLevel = parseInt(String(this.state.gameLevel)) + 1;
+            AsyncStorage.setItem("colorLevel", String(gameLevel));
+        }
+    }
+
+
+    userScoreComponent() {
+        return (
+            <View style={styles.scoreContainer}>
+                <Image source={require('../menu_bg.jpg')}
+                       style={styles.ImageBackground}/>
+                <View style={styles.containerOverlay}>
+                    <Text style={styles.header}>Game {this.state.phase}!</Text>
+                    <Text style={styles.text}>Learning Time: {this.state.learningPhaseTimeSpent}s</Text>
+                    <Text style={styles.text}>Recall Time: {this.state.recallPhaseTimeSpent}s</Text>
+                    <Text style={styles.text}>Wrong Swipes: {this.state.phaseMessage}</Text>
+
+                    <TouchableOpacity style={styles.button} onPress={() => {
+                        this.props.navigation.navigate('Home')
+                    }}>
+                        <Text>MENU</Text>
+                    </TouchableOpacity>
+
+                </View>
+            </View>
+        );
+    }
+
+    RenderSwipeList() {
+
+        return (
+            <SwipeListView
+                dataSource={this.ds.cloneWithRows(this.state.listViewData)}
+                swipeToOpenPercent={5}
+                onRowDidOpen={(rowId) => {
+                    //rowId index of the list +10
+                    this.rightSwipe(rowId.replace(/^\D+/g, ''));//get only number from the rowID (eg, s10 will be 10)
+
+                }}
+                renderRow={(data, secId, rowId, rowMap) => (
+                    <SwipeRow
+                        disableLeftSwipe={true}
+                        leftOpenValue={200}
+                        rightOpenValue={-150}
+                    >
+                        <View style={styles.rowBack}>
+                            <Text>Swipe to save</Text>
+                        </View>
+                        {/*Front row*/}
+                        {data}
+
+                    </SwipeRow>
+                )}
+            />
+        );
+
+    }
+
 
     componentDidMount() {
         setTimeout(() => {
             this.setState({phaseMessage: 'LEARNING PHASE'})
         }, 3000);
+
+        learningPhaseTimer = setInterval(() => {
+            this.setState({learningPhaseTimeSpent: ++this.state.learningPhaseTimeSpent});
+        }, 1000);
+
+        try {
+            AsyncStorage.getItem("colorLevel", (err, gameLevel) => {
+                if (gameLevel === null) {
+                    AsyncStorage.setItem("colorLevel", "0");
+                } else {
+                    //not first time
+                    this.setState({gameLevel: gameLevel});
+                }
+            });
+
+        } catch (error) {
+            console.log(error);
+        }
+
     }
 
     render() {
 
-        return (
-            <View style={styles.container}>
-                <LinearGradient
-                    /*colors={['#ffe259', '#ffa751']}*/
-                    colors={['#1488cc', '#2b32b2']}
-                    style={styles.gradient}>
-                    <View style={styles.swipeLeftHeaderContainer}>
+        if (this.state.phase === 'Won' || this.state.phase === 'Lost') {
 
-                        <Text style={styles.headerCounter}>
-                            {this.state.swipesLeft}
+            return (
+                this.userScoreComponent()
+            )
+
+        } else {
+            return (
+                <View style={styles.container}>
+                    <LinearGradient
+                        /*colors={['#ffe259', '#ffa751']}*/
+                        colors={['#1488cc', '#2b32b2']}
+                        style={styles.gradient}>
+                        <View style={styles.swipeLeftHeaderContainer}>
+
+                            <Text style={styles.headerCounter}>
+                                {this.state.swipesLeft}
+                            </Text>
+                            <Text style={styles.headerText}>
+                                SWIPES LEFT
+                            </Text>
+
+                        </View>
+
+                        <View style={styles.levelHeaderContainer}>
+
+                            <Text style={styles.headerCounter}>
+                                {this.state.gameLevel}
+                            </Text>
+                            <Text style={styles.headerText}>
+                                LEVEL
+                            </Text>
+
+                        </View>
+                    </LinearGradient>
+
+
+                    <View style={{width: '100%', height: '10%', flex: 1, top: 121, alignContent: 'center'}}>
+                        <Text style={{color: '#000', fontSize: 20, textAlign: 'center'}}>
+                            {this.state.phaseMessage}
                         </Text>
-                        <Text style={styles.headerText}>
-                            SWIPES LEFT
-                        </Text>
+                    </View>
+
+
+                    <View style={styles.list_container}>
+
+                        {this.RenderSwipeList()}
 
                     </View>
 
-                    <View style={styles.levelHeaderContainer}>
-
-                        <Text style={styles.headerCounter}>
-                            3
-                        </Text>
-                        <Text style={styles.headerText}>
-                            LEVEL
-                        </Text>
-
-                    </View>
-                </LinearGradient>
-
-
-                <View style={{width: '100%', height: '10%', flex: 1, top: 121, alignContent: 'center'}}>
-                    <Text style={{color: '#000', fontSize: 20, textAlign: 'center'}}>
-                        {this.state.phaseMessage}
-                    </Text>
                 </View>
 
-
-                <View style={styles.list_container}>
-
-                    <SwipeListView
-
-                        dataSource={this.ds.cloneWithRows(this.state.listViewData)}
-                        swipeToOpenPercent={10}
-                        /*onRowClose={(data, rowKey, rowMap) => {
-                            console.log('close' + data)
-                        }}
-                        onRowOpen={(rowKey, rowMap) => {
-                            console.log('open' + rowMap[rowKey])
-                        }}*/
-                        onRowDidOpen={(rowId) => {
-                            //rowId index of the list +10
-                            this.rightSwipe(rowId.replace( /^\D+/g, ''));//get only number from the rowID (eg, s10 will be 10)
-
-                        }}
-                        renderRow={(data, secId, rowId, rowMap) => (
-                            <SwipeRow
-                                disableLeftSwipe={true}
-                                leftOpenValue={200}
-                                rightOpenValue={-150}>
-                                <View style={styles.rowBack}>
-                                    <Text>Saving</Text>
-                                    {/*<View style={[styles.backRightBtn, styles.backRightBtnLeft]}>
-                                        <Text style={styles.backTextWhite}>Right</Text>
-                                    </View>
-                                    <TouchableOpacity
-                                        style={[styles.backRightBtn, styles.backRightBtnRight]}
-                                        onPress={_ => this.deleteRow(secId, rowId, rowMap)}>
-                                        <Text style={styles.backTextWhite}>Delete</Text>
-                                    </TouchableOpacity>*/}
-                                </View>
-                                {/*Front row*/}
-                                {data}
-
-                                {/*<TouchableHighlight
-                                    onPress={_ => console.log('You touched me')}
-                                    style={styles.rowFront}
-                                    underlayColor={'#AAA'}>
-
-                                </TouchableHighlight>*/}
-                            </SwipeRow>
-                        )}
-                    />
-
-                </View>
-
-            </View>
-        );
+            );
+        }
     }
 }
 
@@ -339,5 +429,49 @@ const styles = StyleSheet.create({
         fontSize: 25,
         color: '#fff',
         paddingTop: 21,
-    }
+    },
+    text: {
+        fontSize: 20,
+        color: '#fff',
+        fontWeight: '100'
+    },
+    scoreContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignContent: 'center'
+    },
+    header: {
+        fontSize: 24,
+        marginBottom: 50,
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    ImageBackground: {
+        backgroundColor: '#ccc',
+        flex: 1,
+        position: 'absolute',
+        width: '100%',
+        height: '100%'
+    },
+    containerOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    button: {
+        alignSelf: 'stretch',
+        position:'absolute',
+        backgroundColor: '#33bb0a',
+        padding: 20,
+        left:20,
+        bottom:10,
+        alignItems: 'center',
+        borderRadius: 9,
+        width: '90%'
+    },
 });
