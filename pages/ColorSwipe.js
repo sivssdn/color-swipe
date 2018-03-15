@@ -44,7 +44,11 @@ export default class ColorSwipe extends Component {
             swipesLeft: 3,
             phase: 'learning',
             phaseMessage: 'Swipe right to select',
+            learningPhaseTimeSpent: -1,
+            recallPhaseTimeSpent: -1,
             validColorsList: validColors,
+            colorsLearned:[],
+            colorsRecalled:[],
             listViewData: validColors.map((row) => <View style={[styles.rowFront, {backgroundColor: row}]}></View>),
         };
 
@@ -93,13 +97,30 @@ export default class ColorSwipe extends Component {
         this.setState({listViewData: newData});
     }
 
-    countSwipes() {
+    /*function counts swipes and changes the state depending upon the swipes left*/
+    rightSwipe(colorIndex) {
+        let colorSwiped = this.state.validColorsList[colorIndex-10];
+        console.log(colorSwiped);
+    //to access the correct color, we are getting the index of the color swiped,
+        // which can be mapped to the visibleColorList
+
         let swipesLeft = this.state.swipesLeft - 1;
         if (swipesLeft > 0) {
 
             this.setState({swipesLeft: swipesLeft});
+            if(this.state.phase === 'learning'){
+                let colorsLearnedList = this.state.colorsLearned;
+                colorsLearnedList.push(colorSwiped);
+                this.setState({colorsLearned: colorsLearnedList});
+            }else if(this.state.phase === 'recall'){
+                let colorsRecalledList =  this.state.colorsRecalled;
+                colorsRecalledList.push(colorSwiped);
+                this.setState({colorsRecalled: colorsRecalledList});
+            }
         } else if (swipesLeft === 0 && this.state.phase === 'learning') {
-            this.setState({swipesLeft: 0}); //display no swipes left and after a while, chane state
+            let colorsLearnedList = this.state.colorsLearned;
+            colorsLearnedList.push(colorSwiped);
+            this.setState({swipesLeft: 0,colorsLearned: colorsLearnedList}); //display no swipes left and after a while, chane state
 
             setTimeout(() => {
                 visibleColorList = this.shuffleVisibleColors(this.state.validColorsList);
@@ -107,6 +128,7 @@ export default class ColorSwipe extends Component {
                     swipesLeft: 3,
                     phase: 'recall',
                     phaseMessage: 'RECALLING PHASE',
+                    validColorsList:visibleColorList,
                     listViewData: visibleColorList.map((row) => <View style={[styles.rowFront, {backgroundColor: row}]}></View>)
                 });
 
@@ -114,12 +136,20 @@ export default class ColorSwipe extends Component {
 
 
         } else if (swipesLeft === 0 && this.state.phase === 'recall') {
+            let colorsRecalledList =  this.state.colorsRecalled;
+            colorsRecalledList.push(colorSwiped);
+
             this.setState({
                 swipesLeft: 0,
-                phase: 'over'
+                phase: 'over',
+                colorsRecalled: colorsRecalledList
             });
 
-            setTimeout(() => {alert('Over Bro')}, 200);
+            setTimeout(() => {
+                alert('Over Bro');
+                console.log(this.state.colorsLearned);
+                console.log(this.state.colorsRecalled);
+            }, 200);
 
         }
     }
@@ -174,14 +204,17 @@ export default class ColorSwipe extends Component {
                     <SwipeListView
 
                         dataSource={this.ds.cloneWithRows(this.state.listViewData)}
+                        swipeToOpenPercent={10}
                         /*onRowClose={(data, rowKey, rowMap) => {
                             console.log('close' + data)
                         }}
                         onRowOpen={(rowKey, rowMap) => {
                             console.log('open' + rowMap[rowKey])
                         }}*/
-                        onRowDidOpen={() => {
-                            this.countSwipes();
+                        onRowDidOpen={(rowId) => {
+                            //rowId index of the list +10
+                            this.rightSwipe(rowId.replace( /^\D+/g, ''));//get only number from the rowID (eg, s10 will be 10)
+
                         }}
                         renderRow={(data, secId, rowId, rowMap) => (
                             <SwipeRow

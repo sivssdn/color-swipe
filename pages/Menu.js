@@ -16,6 +16,7 @@ export default class Menu extends React.Component {
                        style={styles.ImageBackground}/>
 
 
+                <View style={styles.containerOverlay}>
                     <Text style={styles.header}>Menu</Text>
 
                     <TouchableOpacity style={styles.button} onPress={() => {
@@ -30,20 +31,23 @@ export default class Menu extends React.Component {
                         <Text>Scores</Text>
                     </TouchableOpacity>
 
+                </View>
             </View>
         );
     }
 }
 const styles = StyleSheet.create({
-    container:{
-        flex: 1, justifyContent:'center', alignItems:'center'
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     header: {
         fontSize: 24,
         color: '#fff',
         fontWeight: 'bold',
         textAlign: 'center',
-        paddingBottom:50
+        paddingBottom: 50
     },
     button: {
         /*alignSelf: 'stretch',*/
@@ -53,7 +57,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         alignItems: 'center',
         borderRadius: 9,
-        width:'70%'
+        width: '70%'
     },
     ImageBackground: {
         backgroundColor: '#ccc',
@@ -61,5 +65,14 @@ const styles = StyleSheet.create({
         position: 'absolute',
         width: '100%',
         height: '100%'
-    }
+    },
+    containerOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
 });
