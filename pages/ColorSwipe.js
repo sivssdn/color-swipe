@@ -115,8 +115,7 @@ export default class ColorSwipe extends Component {
 
                 this.setState({
                     swipesLeft: swipesLeft,
-                    listViewData: colorsList.map((row) => <View
-                        style={[styles.rowFront, {backgroundColor: row}]}></View>)
+                    listViewData: colorsList.map((row) => <View style={[styles.rowFront, {backgroundColor: row}]}></View>)
                 });
 
                 if (this.state.phase === 'learning') {
@@ -143,10 +142,9 @@ export default class ColorSwipe extends Component {
                     this.setState({
                         swipesLeft: 3,
                         phase: 'recall',
-                        phaseMessage: 'RECALLING PHASE',
+                        phaseMessage: 'RECALL',
                         validColorsList: visibleColorList,
-                        listViewData: visibleColorList.map((row) => <View
-                            style={[styles.rowFront, {backgroundColor: row}]}></View>)
+                        listViewData: visibleColorList.map((row) => <View style={[styles.rowFront, {backgroundColor: row}]}></View>)
                     });
 
                 }, 200);
@@ -185,22 +183,99 @@ export default class ColorSwipe extends Component {
 
     //function is called after both learning and recall is over to check if the user won or lost
     checkResults() {
-        let errors = 0;
-        let learnedColors = this.state.colorsLearned, recalledColors = this.state.colorsRecalled;
-        for (let loop = 0; loop < learnedColors.length; loop++) {
-            if (recalledColors.indexOf(learnedColors[loop]) === -1) {
-                errors++;
+        try {
+            let errors = 0;
+            let learnedColors = this.state.colorsLearned, recalledColors = this.state.colorsRecalled;
+            for (let loop = 0; loop < learnedColors.length; loop++) {
+                if (recalledColors.indexOf(learnedColors[loop]) === -1) {
+                    errors++;
+                }
             }
-        }
 
-        if (errors > 0) {
-            //user lost
-            this.setState({phase: "Lost", phaseMessage: errors});
-        } else {
-            //user won, increase level
-            this.setState({phase: "Won", phaseMessage: errors});
-            let gameLevel = parseInt(String(this.state.gameLevel)) + 1;
-            AsyncStorage.setItem("colorLevel", String(gameLevel));
+            if (errors > 0) {
+                //user lost
+                this.setState({phase: "Lost", phaseMessage: errors});
+            } else {
+                //user won, increase level
+                this.setState({phase: "Won", phaseMessage: errors});
+                let gameLevel = parseInt(String(this.state.gameLevel)) + 1;
+                AsyncStorage.setItem("colorLevel", String(gameLevel));
+
+                //for updating top scores -----------------
+                AsyncStorage.getItem("colorScore1").then((error, score1) => {
+                    let scoreUpdatedFlag = false;
+                    if (score1 === null) {
+                        //first time user has made a score
+                        let newColorScore1 = this.state.gameLevel + "," + this.state.learningPhaseTimeSpent + "," + this.state.recallPhaseTimeSpent;
+                        AsyncStorage.setItem("colorScore1", newColorScore1);
+                        scoreUpdatedFlag = true;
+
+                    } else {
+                        let timings = score1.split(",");
+                        let learningTime = parseInt(timings[1]);
+                        let recallTime = parseInt(timings[2]);
+                        if (this.state.learningPhaseTimeSpent < learningTime && this.state.recallPhaseTimeSpent < recallTime) {
+                            let newColorScore1 = this.state.gameLevel + "," + this.state.learningPhaseTimeSpent + "," + this.state.recallPhaseTimeSpent;
+                            AsyncStorage.setItem("colorScore1", newColorScore1);
+                            scoreUpdatedFlag = true;
+                        }
+                    }
+
+                    //wasn't the highest score, check for second highest
+                    if (!scoreUpdatedFlag) {
+                        AsyncStorage.getItem("colorScore2").then((error, score2) => {
+                            scoreUpdatedFlag = false;
+                            if (score2 === null) {
+                                //first time user has made a score
+                                let newColorScore2 = this.state.gameLevel + "," + this.state.learningPhaseTimeSpent + "," + this.state.recallPhaseTimeSpent;
+                                AsyncStorage.setItem("colorScore2", newColorScore2);
+                                scoreUpdatedFlag = true;
+
+                            } else {
+                                let timings = score2.split(",");
+                                let learningTime = parseInt(timings[1]);
+                                let recallTime = parseInt(timings[2]);
+                                if (this.state.learningPhaseTimeSpent < learningTime && this.state.recallPhaseTimeSpent < recallTime) {
+                                    let newColorScore1 = this.state.gameLevel + "," + this.state.learningPhaseTimeSpent + "," + this.state.recallPhaseTimeSpent;
+                                    AsyncStorage.setItem("colorScore2", newColorScore1);
+                                    scoreUpdatedFlag = true;
+                                }
+                            }
+
+                            //not the second highest score, check for third highest
+                            if (!scoreUpdatedFlag) {
+                                AsyncStorage.getItem("colorScore3").then((error, score3) => {
+
+                                    if (score3 === null) {
+                                        //first time user has made a score
+                                        let newColorScore2 = this.state.gameLevel + "," + this.state.learningPhaseTimeSpent + "," + this.state.recallPhaseTimeSpent;
+                                        AsyncStorage.setItem("colorScore3", newColorScore2);
+
+
+                                    } else {
+                                        let timings = score2.split(",");
+                                        let learningTime = parseInt(timings[1]);
+                                        let recallTime = parseInt(timings[2]);
+                                        if (this.state.learningPhaseTimeSpent < learningTime && this.state.recallPhaseTimeSpent < recallTime) {
+                                            let newColorScore1 = this.state.gameLevel + "," + this.state.learningPhaseTimeSpent + "," + this.state.recallPhaseTimeSpent;
+                                            AsyncStorage.setItem("colorScore3", newColorScore1);
+                                        }
+                                    }
+                                }).catch((error) => {
+                                    console.log(error);
+                                });
+                            }
+                        }).catch((error) => {
+                            console.log(error);
+                        });
+                    }
+                }).catch((error) => {
+                    console.log(error);
+                });
+            }
+
+        } catch (error) {
+            console.log(error)
         }
     }
 
@@ -260,7 +335,7 @@ export default class ColorSwipe extends Component {
 
     componentDidMount() {
         setTimeout(() => {
-            this.setState({phaseMessage: 'LEARNING PHASE'})
+            this.setState({phaseMessage: 'LEARN'})
         }, 3000);
 
         learningPhaseTimer = setInterval(() => {
@@ -465,11 +540,11 @@ const styles = StyleSheet.create({
     },
     button: {
         alignSelf: 'stretch',
-        position:'absolute',
+        position: 'absolute',
         backgroundColor: '#33bb0a',
         padding: 20,
-        left:20,
-        bottom:10,
+        left: 20,
+        bottom: 10,
         alignItems: 'center',
         borderRadius: 9,
         width: '90%'

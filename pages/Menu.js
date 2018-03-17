@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View, AsyncStorage} from 'react-native';
+import {BackHandler, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 export default class Menu extends React.Component {
     constructor(props) {
@@ -17,7 +17,7 @@ export default class Menu extends React.Component {
 
 
                 <View style={styles.containerOverlay}>
-                    <Text style={styles.header}>Menu</Text>
+                    <Text style={styles.header}>MENU</Text>
 
                     <TouchableOpacity style={styles.button} onPress={() => {
                         this.props.navigation.navigate('ColorSwipe')
@@ -29,6 +29,12 @@ export default class Menu extends React.Component {
                         this.props.navigation.navigate('Scores')
                     }}>
                         <Text>High Scores</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.button} onPress={() => {
+                        BackHandler.exitApp()
+                    }}>
+                        <Text>Exit</Text>
                     </TouchableOpacity>
 
                 </View>
@@ -57,7 +63,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         alignItems: 'center',
         borderRadius: 9,
-        width: '70%'
+        width: '70%',
     },
     ImageBackground: {
         backgroundColor: '#ccc',
