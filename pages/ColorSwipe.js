@@ -115,7 +115,8 @@ export default class ColorSwipe extends Component {
 
                 this.setState({
                     swipesLeft: swipesLeft,
-                    listViewData: colorsList.map((row) => <View style={[styles.rowFront, {backgroundColor: row}]}></View>)
+                    listViewData: colorsList.map((row) => <View
+                        style={[styles.rowFront, {backgroundColor: row}]}></View>)
                 });
 
                 if (this.state.phase === 'learning') {
@@ -144,7 +145,8 @@ export default class ColorSwipe extends Component {
                         phase: 'recall',
                         phaseMessage: 'RECALL',
                         validColorsList: visibleColorList,
-                        listViewData: visibleColorList.map((row) => <View style={[styles.rowFront, {backgroundColor: row}]}></View>)
+                        listViewData: visibleColorList.map((row) => <View
+                            style={[styles.rowFront, {backgroundColor: row}]}></View>)
                     });
 
                 }, 200);
@@ -202,81 +204,96 @@ export default class ColorSwipe extends Component {
                 AsyncStorage.setItem("colorLevel", String(gameLevel));
 
                 //for updating top scores -----------------
-                AsyncStorage.getItem("colorScore1").then((error, score1) => {
-                    let scoreUpdatedFlag = false;
-                    if (score1 === null) {
-                        //first time user has made a score
-                        let newColorScore1 = this.state.gameLevel + "," + this.state.learningPhaseTimeSpent + "," + this.state.recallPhaseTimeSpent;
-                        AsyncStorage.setItem("colorScore1", newColorScore1);
-                        scoreUpdatedFlag = true;
-
-                    } else {
-                        let timings = score1.split(",");
-                        let learningTime = parseInt(timings[1]);
-                        let recallTime = parseInt(timings[2]);
-                        if (this.state.learningPhaseTimeSpent < learningTime && this.state.recallPhaseTimeSpent < recallTime) {
-                            let newColorScore1 = this.state.gameLevel + "," + this.state.learningPhaseTimeSpent + "," + this.state.recallPhaseTimeSpent;
-                            AsyncStorage.setItem("colorScore1", newColorScore1);
-                            scoreUpdatedFlag = true;
-                        }
-                    }
-
-                    //wasn't the highest score, check for second highest
-                    if (!scoreUpdatedFlag) {
-                        AsyncStorage.getItem("colorScore2").then((error, score2) => {
-                            scoreUpdatedFlag = false;
-                            if (score2 === null) {
-                                //first time user has made a score
-                                let newColorScore2 = this.state.gameLevel + "," + this.state.learningPhaseTimeSpent + "," + this.state.recallPhaseTimeSpent;
-                                AsyncStorage.setItem("colorScore2", newColorScore2);
-                                scoreUpdatedFlag = true;
-
-                            } else {
-                                let timings = score2.split(",");
-                                let learningTime = parseInt(timings[1]);
-                                let recallTime = parseInt(timings[2]);
-                                if (this.state.learningPhaseTimeSpent < learningTime && this.state.recallPhaseTimeSpent < recallTime) {
-                                    let newColorScore1 = this.state.gameLevel + "," + this.state.learningPhaseTimeSpent + "," + this.state.recallPhaseTimeSpent;
-                                    AsyncStorage.setItem("colorScore2", newColorScore1);
-                                    scoreUpdatedFlag = true;
-                                }
-                            }
-
-                            //not the second highest score, check for third highest
-                            if (!scoreUpdatedFlag) {
-                                AsyncStorage.getItem("colorScore3").then((error, score3) => {
-
-                                    if (score3 === null) {
-                                        //first time user has made a score
-                                        let newColorScore2 = this.state.gameLevel + "," + this.state.learningPhaseTimeSpent + "," + this.state.recallPhaseTimeSpent;
-                                        AsyncStorage.setItem("colorScore3", newColorScore2);
-
-
-                                    } else {
-                                        let timings = score2.split(",");
-                                        let learningTime = parseInt(timings[1]);
-                                        let recallTime = parseInt(timings[2]);
-                                        if (this.state.learningPhaseTimeSpent < learningTime && this.state.recallPhaseTimeSpent < recallTime) {
-                                            let newColorScore1 = this.state.gameLevel + "," + this.state.learningPhaseTimeSpent + "," + this.state.recallPhaseTimeSpent;
-                                            AsyncStorage.setItem("colorScore3", newColorScore1);
-                                        }
-                                    }
-                                }).catch((error) => {
-                                    console.log(error);
-                                });
-                            }
-                        }).catch((error) => {
-                            console.log(error);
-                        });
-                    }
-                }).catch((error) => {
-                    console.log(error);
-                });
+                this.checkUpdateTopScore1(gameLevel, this.state.learningPhaseTimeSpent, this.state.recallPhaseTimeSpent);
             }
 
         } catch (error) {
             console.log(error)
         }
+    }
+
+    checkUpdateTopScore1(level, learningTime, recallTime) {
+        AsyncStorage.getItem("colorScore1").then((score1) => {
+            let scoreUpdatedFlag = false;
+            if (score1 === null || typeof (score1) === 'undefined') {
+                //first time user has made a score
+                let newColorScore1 = level + "," + learningTime+ "," + recallTime;
+                AsyncStorage.setItem("colorScore1", newColorScore1);
+                scoreUpdatedFlag = true;
+
+            } else {
+                let timings = score1.split(",");
+                let levelStored = parseInt(timings[0]);
+                let learningTimeStored = parseInt(timings[1]);
+                let recallTimeStored = parseInt(timings[2]);
+                if (learningTime <= learningTimeStored && recallTime <= recallTimeStored) {
+                    let newColorScore1 = level + "," + learningTime+ "," + recallTime;
+                    AsyncStorage.setItem("colorScore1", newColorScore1);
+                    scoreUpdatedFlag = true;
+                    //check if the old top score is above the second or third highest
+                    this.checkUpdateTopScore2(levelStored, learningTimeStored, recallTimeStored);
+                }
+            }
+            if(!scoreUpdatedFlag){
+                //score wasn't the first top, check fr second and thord highest
+                this.checkUpdateTopScore2(level, learningTime, recallTime);
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
+    }
+
+    checkUpdateTopScore2(level, learningTime, recallTime) {
+        AsyncStorage.getItem("colorScore2").then((score2) => {
+            let scoreUpdatedFlag = false;
+            if (score2 === null || typeof (score2) === 'undefined') {
+                //first time user has made a score
+                let newColorScore2 = level + "," + learningTime+ "," + recallTime;
+                AsyncStorage.setItem("colorScore2", newColorScore2);
+                scoreUpdatedFlag = true;
+
+            } else {
+                let timings = score2.split(",");
+                let levelStored = parseInt(timings[0]);
+                let learningTimeStored = parseInt(timings[1]);
+                let recallTimeStored = parseInt(timings[2]);
+                if (learningTime <= learningTimeStored && recallTime <= recallTimeStored) {
+                    let newColorScore2 = level + "," + learningTime+ "," + recallTime;
+                    AsyncStorage.setItem("colorScore2", newColorScore2);
+                    scoreUpdatedFlag = true;
+                    this.checkUpdateTopScore3(levelStored, learningTimeStored, recallTimeStored);
+                }
+            }
+            if(!scoreUpdatedFlag){
+                //if the score is updated, then check if the old top score is second or third highest
+                this.checkUpdateTopScore3(level, learningTime, recallTime);
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
+    }
+
+    checkUpdateTopScore3(level, learningTime, recallTime) {
+        AsyncStorage.getItem("colorScore3").then((score3) => {
+
+            if (score3 === null || typeof (score3) === 'undefined') {
+                //first time user has made a score
+                let newColorScore3 = level + "," + learningTime+ "," + recallTime;
+                AsyncStorage.setItem("colorScore3", newColorScore3);
+
+            } else {
+                let timings = score3.split(",");
+                //let levelStored = parseInt(timings[0]);
+                let learningTimeStored = parseInt(timings[1]);
+                let recallTimeStored = parseInt(timings[2]);
+                if (learningTime <= learningTimeStored && recallTime <= recallTimeStored) {
+                    let newColorScore3 = level + "," + learningTime+ "," + recallTime;
+                    AsyncStorage.setItem("colorScore3", newColorScore3);
+                }
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
     }
 
 

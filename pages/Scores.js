@@ -15,9 +15,13 @@ export default class Scores extends React.Component {
     getColorsHighScore() {
         //getting Colors High Score
         try {
+            let score = [];
             AsyncStorage.getItem("colorScore1").then((score1) => {
                 if (score1 !== null) {
-                    this.setState({colorsHighScore1: score1.split(",")});
+                    score = score1.split(",");
+                    score[1] = score[1]+" sec";
+                    score[2] = score[2]+" sec";
+                    this.setState({colorsHighScore1: score});
                 }
             }).catch((error)=>{
                 console.log("Api call error"+error);
@@ -25,7 +29,10 @@ export default class Scores extends React.Component {
 
             AsyncStorage.getItem("colorScore2").then(( score2) => {
                 if (score2 !== null) {
-                    this.setState({colorsHighScore2: score2.split(",")});
+                    score = score2.split(",");
+                    score[1] = score[1]+" sec";
+                    score[2] = score[2]+" sec";
+                    this.setState({colorsHighScore2: score});
                 }
             }).catch((error)=>{
                 console.log("Api call error"+error);
@@ -33,7 +40,10 @@ export default class Scores extends React.Component {
 
             AsyncStorage.getItem("colorScore3").then((score3) => {
                 if (score3 !== null) {
-                    this.setState({colorsHighScore1: score3.split(",")});
+                    score = score3.split(",");
+                    score[1] = score[1]+" sec";
+                    score[2] = score[2]+" sec";
+                    this.setState({colorsHighScore1: score});
                 }
             }).catch((error)=>{
                 console.log("Api call error "+error);
@@ -58,9 +68,6 @@ export default class Scores extends React.Component {
         ];
         const tableData = [
             ['1', '2', '3'],
-            ['a', 'b', 'c'],
-            ['a', 'b', 'c'],
-            ['a', 'b', 'c'],
             ['a', 'b', 'c'],
         ];
 
