@@ -43,13 +43,14 @@ export default class ColorSwipe extends Component {
             swipesLeft: 3,
             gameLevel: 0,
             phase: 'learning',
-            phaseMessage: 'Swipe right to select',
+            phaseMessage: 'Swipe to select',
             learningPhaseTimeSpent: -1,
             recallPhaseTimeSpent: -1,
             validColorsList: validColors,
             colorsLearned: [],
             colorsRecalled: [],
-            listViewData: validColors.map((row) => <View style={[styles.rowFront, {backgroundColor: row}]}></View>),
+            listViewDataColors: validColors.map((row) => <View
+                style={[styles.rowFront, {backgroundColor: row}]}></View>),
         };
 
     }
@@ -92,13 +93,13 @@ export default class ColorSwipe extends Component {
     //function for deleting a row from Swipeable List
     deleteRow(secId, rowId, rowMap) {
         rowMap[`${secId}${rowId}`].closeRow();
-        const newData = [...this.state.listViewData];
+        const newData = [...this.state.listViewDataColors];
         newData.splice(rowId, 1);
-        this.setState({listViewData: newData});
+        this.setState({listViewDataColors: newData});
     }
 
     /*function counts swipes and changes the state depending upon the swipes left*/
-    rightSwipe(colorIndex) {
+    rightSwipeColors(colorIndex) {
         try {
 
             let colorSwiped = this.state.validColorsList[colorIndex - 10];
@@ -115,7 +116,7 @@ export default class ColorSwipe extends Component {
 
                 this.setState({
                     swipesLeft: swipesLeft,
-                    listViewData: colorsList.map((row) => <View
+                    listViewDataColors: colorsList.map((row) => <View
                         style={[styles.rowFront, {backgroundColor: row}]}></View>)
                 });
 
@@ -145,7 +146,7 @@ export default class ColorSwipe extends Component {
                         phase: 'recall',
                         phaseMessage: 'RECALL',
                         validColorsList: visibleColorList,
-                        listViewData: visibleColorList.map((row) => <View
+                        listViewDataColors: visibleColorList.map((row) => <View
                             style={[styles.rowFront, {backgroundColor: row}]}></View>)
                     });
 
@@ -217,7 +218,7 @@ export default class ColorSwipe extends Component {
             let scoreUpdatedFlag = false;
             if (score1 === null || typeof (score1) === 'undefined') {
                 //first time user has made a score
-                let newColorScore1 = level + "," + learningTime+ "," + recallTime;
+                let newColorScore1 = level + "," + learningTime + "," + recallTime;
                 AsyncStorage.setItem("colorScore1", newColorScore1);
                 scoreUpdatedFlag = true;
 
@@ -226,15 +227,15 @@ export default class ColorSwipe extends Component {
                 let levelStored = parseInt(timings[0]);
                 let learningTimeStored = parseInt(timings[1]);
                 let recallTimeStored = parseInt(timings[2]);
-                if (learningTime <= learningTimeStored && recallTime <= recallTimeStored) {
-                    let newColorScore1 = level + "," + learningTime+ "," + recallTime;
+                if ((learningTime + recallTime) < (learningTimeStored + recallTimeStored)) {
+                    let newColorScore1 = level + "," + learningTime + "," + recallTime;
                     AsyncStorage.setItem("colorScore1", newColorScore1);
                     scoreUpdatedFlag = true;
                     //check if the old top score is above the second or third highest
                     this.checkUpdateTopScore2(levelStored, learningTimeStored, recallTimeStored);
                 }
             }
-            if(!scoreUpdatedFlag){
+            if (!scoreUpdatedFlag) {
                 //score wasn't the first top, check fr second and thord highest
                 this.checkUpdateTopScore2(level, learningTime, recallTime);
             }
@@ -248,7 +249,7 @@ export default class ColorSwipe extends Component {
             let scoreUpdatedFlag = false;
             if (score2 === null || typeof (score2) === 'undefined') {
                 //first time user has made a score
-                let newColorScore2 = level + "," + learningTime+ "," + recallTime;
+                let newColorScore2 = level + "," + learningTime + "," + recallTime;
                 AsyncStorage.setItem("colorScore2", newColorScore2);
                 scoreUpdatedFlag = true;
 
@@ -257,14 +258,14 @@ export default class ColorSwipe extends Component {
                 let levelStored = parseInt(timings[0]);
                 let learningTimeStored = parseInt(timings[1]);
                 let recallTimeStored = parseInt(timings[2]);
-                if (learningTime <= learningTimeStored && recallTime <= recallTimeStored) {
-                    let newColorScore2 = level + "," + learningTime+ "," + recallTime;
+                if ((learningTime + recallTime) < (learningTimeStored + recallTimeStored)) {
+                    let newColorScore2 = level + "," + learningTime + "," + recallTime;
                     AsyncStorage.setItem("colorScore2", newColorScore2);
                     scoreUpdatedFlag = true;
                     this.checkUpdateTopScore3(levelStored, learningTimeStored, recallTimeStored);
                 }
             }
-            if(!scoreUpdatedFlag){
+            if (!scoreUpdatedFlag) {
                 //if the score is updated, then check if the old top score is second or third highest
                 this.checkUpdateTopScore3(level, learningTime, recallTime);
             }
@@ -278,7 +279,7 @@ export default class ColorSwipe extends Component {
 
             if (score3 === null || typeof (score3) === 'undefined') {
                 //first time user has made a score
-                let newColorScore3 = level + "," + learningTime+ "," + recallTime;
+                let newColorScore3 = level + "," + learningTime + "," + recallTime;
                 AsyncStorage.setItem("colorScore3", newColorScore3);
 
             } else {
@@ -286,8 +287,8 @@ export default class ColorSwipe extends Component {
                 //let levelStored = parseInt(timings[0]);
                 let learningTimeStored = parseInt(timings[1]);
                 let recallTimeStored = parseInt(timings[2]);
-                if (learningTime <= learningTimeStored && recallTime <= recallTimeStored) {
-                    let newColorScore3 = level + "," + learningTime+ "," + recallTime;
+                if ((learningTime + recallTime) < (learningTimeStored + recallTimeStored)) {
+                    let newColorScore3 = level + "," + learningTime + "," + recallTime;
                     AsyncStorage.setItem("colorScore3", newColorScore3);
                 }
             }
@@ -319,15 +320,15 @@ export default class ColorSwipe extends Component {
         );
     }
 
-    RenderSwipeList() {
+    RenderSwipeListColors() {
 
         return (
             <SwipeListView
-                dataSource={this.ds.cloneWithRows(this.state.listViewData)}
+                dataSource={this.ds.cloneWithRows(this.state.listViewDataColors)}
                 swipeToOpenPercent={5}
                 onRowDidOpen={(rowId) => {
                     //rowId index of the list +10
-                    this.rightSwipe(rowId.replace(/^\D+/g, ''));//get only number from the rowID (eg, s10 will be 10)
+                    this.rightSwipeColors(rowId.replace(/^\D+/g, ''));//get only number from the rowID (eg, s10 will be 10)
 
                 }}
                 renderRow={(data, secId, rowId, rowMap) => (
@@ -423,7 +424,7 @@ export default class ColorSwipe extends Component {
 
                     <View style={styles.list_container}>
 
-                        {this.RenderSwipeList()}
+                        {this.RenderSwipeListColors()}
 
                     </View>
 

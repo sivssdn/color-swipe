@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "color-swipe",
+    "name": "Swiping",
     "description": "This project challenges your recognition abilities",
     "slug": "color-swipe",
-    "privacy": "public",
+    "privacy": "unlisted",
     "sdkVersion": "25.0.0",
     "platforms": ["ios", "android"],
     "version": "1.0.0",
@@ -11,11 +11,15 @@
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#ed1c24"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.colorswipe.swiping"
+    },
+    "android": {
+      "package": "com.colorswipe.swiping"
     }
   }
 }

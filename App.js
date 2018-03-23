@@ -4,10 +4,12 @@ import {StackNavigator} from 'react-navigation';
 import Menu from "./pages/Menu";
 import ColorSwipe from "./pages/ColorSwipe";
 import Scores from "./pages/Scores";
+import CountrySwipe from "./pages/CountrySwipe";
 
 const Navigation = StackNavigator({
     Home: {screen: Menu},
     ColorSwipe: {screen: ColorSwipe},
+    CountrySwipe:{screen: CountrySwipe},
     Scores: {screen: Scores}
 }, {
     navigationOptions: {

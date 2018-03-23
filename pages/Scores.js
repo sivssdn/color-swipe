@@ -9,6 +9,9 @@ export default class Scores extends React.Component {
             colorsHighScore1: ["NA", "NA", "NA"],
             colorsHighScore2: ["NA", "NA", "NA"],
             colorsHighScore3: ["NA", "NA", "NA"],
+            CountryScore1:["NA", "NA", "NA"],
+            CountryScore2:["NA", "NA", "NA"],
+            CountryScore3:["NA", "NA", "NA"],
         }
     }
 
@@ -53,9 +56,51 @@ export default class Scores extends React.Component {
             console.log(error);
         }
     }
+    getCountriesHighScore() {
+        //getting Colors High Score
+        try {
+            let score = [];
+            AsyncStorage.getItem("CountryScore1").then((score1) => {
+                if (score1 !== null) {
+                    score = score1.split(",");
+                    score[1] = score[1]+" sec";
+                    score[2] = score[2]+" sec";
+                    this.setState({CountryScore1: score});
+                }
+            }).catch((error)=>{
+                console.log("Api call error"+error);
+            });
+
+            AsyncStorage.getItem("CountryScore2").then(( score2) => {
+                if (score2 !== null) {
+                    score = score2.split(",");
+                    score[1] = score[1]+" sec";
+                    score[2] = score[2]+" sec";
+                    this.setState({CountryScore2: score});
+                }
+            }).catch((error)=>{
+                console.log("Api call error"+error);
+            });
+
+            AsyncStorage.getItem("CountryScore3").then((score3) => {
+                if (score3 !== null) {
+                    score = score3.split(",");
+                    score[1] = score[1]+" sec";
+                    score[2] = score[2]+" sec";
+                    this.setState({CountryScore3: score});
+                }
+            }).catch((error)=>{
+                console.log("Api call error "+error);
+            });
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     componentDidMount(){
         this.getColorsHighScore();
+        this.getCountriesHighScore();
     }
 
 
@@ -66,9 +111,10 @@ export default class Scores extends React.Component {
             this.state.colorsHighScore2,
             this.state.colorsHighScore3,
         ];
-        const tableData = [
-            ['1', '2', '3'],
-            ['a', 'b', 'c'],
+        const countriesTableData = [
+            this.state.CountryScore1,
+            this.state.CountryScore2,
+            this.state.CountryScore3,
         ];
 
         return (
@@ -85,8 +131,9 @@ export default class Scores extends React.Component {
                         <Text style={styles.header}>Countries</Text>
                         <Table style={styles.table}>
                             <Row data={tableHead} style={styles.head} textStyle={styles.text}/>
-                            <Rows data={tableData} style={styles.row} textStyle={styles.text}/>
+                            <Rows data={countriesTableData} style={styles.row} textStyle={styles.text}/>
                         </Table>
+                        <Text style={[styles.header,{bottom:1, fontSize: 15,marginLeft: '30%'}]}>Upgrade to Swiping Pro</Text>
                     </ScrollView>
                 </View>
             </View>
@@ -123,8 +170,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    head: {height: 40, backgroundColor: '#000',},
-    text: {marginLeft: 5, color: '#fff'},
-    row: {height: 30},
-    table: {width: '98%', marginLeft: '1%'}
+    head: {
+        height: 40,
+        backgroundColor: '#000',
+    },
+    text: {
+        marginLeft: 5,
+        color: '#fff'
+    },
+    row: {
+        height: 30
+    },
+    table: {
+        width: '98%',
+        marginLeft: '1%'
+    }
 });
