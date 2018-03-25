@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Swiping",
-    "description": "This project challenges your recognition abilities",
+    "description": "This game challenges your recognition abilities",
     "slug": "color-swipe",
     "privacy": "unlisted",
     "sdkVersion": "25.0.0",
@@ -19,7 +19,8 @@
       "bundleIdentifier": "com.colorswipe.swiping"
     },
     "android": {
-      "package": "com.colorswipe.swiping"
+      "package": "com.colorswipe.swiping",
+      "permissions":[]
     }
   }
 }

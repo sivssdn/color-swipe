@@ -9,9 +9,9 @@ export default class Scores extends React.Component {
             colorsHighScore1: ["NA", "NA", "NA"],
             colorsHighScore2: ["NA", "NA", "NA"],
             colorsHighScore3: ["NA", "NA", "NA"],
-            CountryScore1:["NA", "NA", "NA"],
-            CountryScore2:["NA", "NA", "NA"],
-            CountryScore3:["NA", "NA", "NA"],
+            CountryScore1: ["NA", "NA", "NA"],
+            CountryScore2: ["NA", "NA", "NA"],
+            CountryScore3: ["NA", "NA", "NA"],
         }
     }
 
@@ -22,40 +22,41 @@ export default class Scores extends React.Component {
             AsyncStorage.getItem("colorScore1").then((score1) => {
                 if (score1 !== null) {
                     score = score1.split(",");
-                    score[1] = score[1]+" sec";
-                    score[2] = score[2]+" sec";
+                    score[1] = score[1] + " sec";
+                    score[2] = score[2] + " sec";
                     this.setState({colorsHighScore1: score});
                 }
-            }).catch((error)=>{
-                console.log("Api call error"+error);
+            }).catch((error) => {
+                console.log("Api call error" + error);
             });
 
-            AsyncStorage.getItem("colorScore2").then(( score2) => {
+            AsyncStorage.getItem("colorScore2").then((score2) => {
                 if (score2 !== null) {
                     score = score2.split(",");
-                    score[1] = score[1]+" sec";
-                    score[2] = score[2]+" sec";
+                    score[1] = score[1] + " sec";
+                    score[2] = score[2] + " sec";
                     this.setState({colorsHighScore2: score});
                 }
-            }).catch((error)=>{
-                console.log("Api call error"+error);
+            }).catch((error) => {
+                console.log("Api call error" + error);
             });
 
             AsyncStorage.getItem("colorScore3").then((score3) => {
                 if (score3 !== null) {
                     score = score3.split(",");
-                    score[1] = score[1]+" sec";
-                    score[2] = score[2]+" sec";
-                    this.setState({colorsHighScore1: score});
+                    score[1] = score[1] + " sec";
+                    score[2] = score[2] + " sec";
+                    this.setState({colorsHighScore3: score});
                 }
-            }).catch((error)=>{
-                console.log("Api call error "+error);
+            }).catch((error) => {
+                console.log("Api call error " + error);
             });
 
         } catch (error) {
             console.log(error);
         }
     }
+
     getCountriesHighScore() {
         //getting Colors High Score
         try {
@@ -63,34 +64,34 @@ export default class Scores extends React.Component {
             AsyncStorage.getItem("CountryScore1").then((score1) => {
                 if (score1 !== null) {
                     score = score1.split(",");
-                    score[1] = score[1]+" sec";
-                    score[2] = score[2]+" sec";
+                    score[1] = score[1] + " sec";
+                    score[2] = score[2] + " sec";
                     this.setState({CountryScore1: score});
                 }
-            }).catch((error)=>{
-                console.log("Api call error"+error);
+            }).catch((error) => {
+                console.log("Api call error" + error);
             });
 
-            AsyncStorage.getItem("CountryScore2").then(( score2) => {
+            AsyncStorage.getItem("CountryScore2").then((score2) => {
                 if (score2 !== null) {
                     score = score2.split(",");
-                    score[1] = score[1]+" sec";
-                    score[2] = score[2]+" sec";
+                    score[1] = score[1] + " sec";
+                    score[2] = score[2] + " sec";
                     this.setState({CountryScore2: score});
                 }
-            }).catch((error)=>{
-                console.log("Api call error"+error);
+            }).catch((error) => {
+                console.log("Api call error" + error);
             });
 
             AsyncStorage.getItem("CountryScore3").then((score3) => {
                 if (score3 !== null) {
                     score = score3.split(",");
-                    score[1] = score[1]+" sec";
-                    score[2] = score[2]+" sec";
+                    score[1] = score[1] + " sec";
+                    score[2] = score[2] + " sec";
                     this.setState({CountryScore3: score});
                 }
-            }).catch((error)=>{
-                console.log("Api call error "+error);
+            }).catch((error) => {
+                console.log("Api call error " + error);
             });
 
         } catch (error) {
@@ -98,7 +99,7 @@ export default class Scores extends React.Component {
         }
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.getColorsHighScore();
         this.getCountriesHighScore();
     }
@@ -133,7 +134,8 @@ export default class Scores extends React.Component {
                             <Row data={tableHead} style={styles.head} textStyle={styles.text}/>
                             <Rows data={countriesTableData} style={styles.row} textStyle={styles.text}/>
                         </Table>
-                        <Text style={[styles.header,{bottom:1, fontSize: 15,marginLeft: '30%'}]}>Upgrade to Swiping Pro</Text>
+                        <Text style={[styles.header, {bottom: 1, fontSize: 15, marginLeft: '30%'}]}>Upgrade to Swiping
+                            Pro</Text>
                     </ScrollView>
                 </View>
             </View>
